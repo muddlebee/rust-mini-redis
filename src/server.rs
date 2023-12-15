@@ -138,6 +138,8 @@ pub async fn run(listener: TcpListener, shutdown: impl Future) {
         shutdown_complete_tx,
     };
 
+    //TODO:understand
+
     // Concurrently run the server and listen for the `shutdown` signal. The
     // server task runs until an error is encountered, so under normal
     // circumstances, this `select!` statement runs until the `shutdown` signal
@@ -301,6 +303,8 @@ impl Listener {
     }
 }
 
+//TODO:understand
+
 impl Handler {
     /// Process a single connection.
     ///
@@ -361,6 +365,7 @@ impl Handler {
             // command to write response frames directly to the connection. In
             // the case of pub/sub, multiple frames may be send back to the
             // peer.
+            //TODO:understand
             cmd.apply(&self.db, &mut self.connection, &mut self.shutdown)
                 .await?;
         }
