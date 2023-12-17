@@ -2,8 +2,8 @@
 //!
 //! Provides an async connect and methods for issuing the supported commands.
 
-use crate::cmd::{Get, Ping, Publish, Set, Subscribe, Unsubscribe};
-use crate::{Connection, Frame};
+use crate::cmd::{Get, HSet, Ping, Publish, Set, Subscribe, Unsubscribe};
+use crate::{Connection, Frame, frame};
 
 use async_stream::try_stream;
 use bytes::Bytes;
@@ -389,6 +389,23 @@ impl Client {
                 Err(err.into())
             }
         }
+    }
+
+
+    pub async fn hset(&mut self, p0: &String, p1: &String, p2: Bytes) {
+        let frame = HSet::new(p0, p1, p2).into_frame();
+
+        debug!(request = ?frame);
+
+        // Write the frame to the socket
+        self.connection.write_frame(&frame).await.unwrap();
+
+        // TODO: Read the response
+        match self.read_response().await.unwrap() {
+            Frame::Integer(response) => println!("response: {}", response),
+            frame => println!("frame: {:?}", frame),
+        }
+
     }
 }
 

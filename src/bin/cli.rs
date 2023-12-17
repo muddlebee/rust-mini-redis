@@ -64,6 +64,32 @@ enum Command {
         /// Specific channel or channels
         channels: Vec<String>,
     },
+
+    /// HSET key field value [field value ...]
+    /// Sets the specified fields to their respective values in the hash stored at key.
+    HSet {
+        /// Name of key to set
+        key: String,
+
+        /// Name of field to set
+        field: String,
+
+        /// Value to set.
+        #[clap(value_parser = bytes_from_str)]
+        value: Bytes,
+    },
+
+
+    // /// HGET key field
+    // /// Returns the value associated with field in the hash stored at key.
+    // /// If the key or the field do not exist, nil is returned.
+    // HGET {
+    //     /// Name of key to set
+    //     key: String,
+    //
+    //     /// Name of field to set
+    //     field: String,
+    // },
 }
 
 /// Entry point for CLI tool.
@@ -145,6 +171,10 @@ async fn main() -> mini_redis::Result<()> {
                     msg.channel, msg.content
                 );
             }
+        }
+        Command::HSet { key, field, value } => {
+            let _ = client.hset(&key, &field, value);
+            println!("HSet OK");
         }
     }
 

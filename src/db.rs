@@ -83,6 +83,12 @@ struct State {
     /// values drop. Setting this to `true` signals to the background task to
     /// exit.
     shutdown: bool,
+
+    /// key-value data for hashset type
+    /// key: hashset name
+    /// value: hashmap
+    hashes: HashMap<String, HashMap<String, Bytes>>,
+
 }
 
 /// Entry in the key-value store
@@ -127,6 +133,7 @@ impl Db {
                 pub_sub: HashMap::new(),
                 expirations: BTreeSet::new(),
                 shutdown: false,
+                hashes: HashMap::new(),
             }),
             background_task: Notify::new(),
         });
@@ -277,6 +284,15 @@ impl Db {
         // wake up only to be unable to acquire the mutex.
         drop(state);
         self.shared.background_task.notify_one();
+    }
+
+    /// hashset implementation
+    pub(crate) fn hset(&self, key: String, field: String, value: Bytes) -> bool {
+        let mut state = self.shared.state.lock().unwrap();
+
+        let hash = state.hashes.entry(key).or_insert_with(HashMap::new);
+        // This returns `None` if the field is new, otherwise returns the old value.
+        hash.insert(field, value).is_none()
     }
 }
 

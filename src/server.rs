@@ -303,7 +303,6 @@ impl Listener {
     }
 }
 
-//TODO:understand
 
 impl Handler {
     /// Process a single connection.
@@ -365,7 +364,6 @@ impl Handler {
             // command to write response frames directly to the connection. In
             // the case of pub/sub, multiple frames may be send back to the
             // peer.
-            //TODO:understand
             cmd.apply(&self.db, &mut self.connection, &mut self.shutdown)
                 .await?;
         }

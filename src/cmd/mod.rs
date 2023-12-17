@@ -14,6 +14,9 @@ mod ping;
 pub use ping::Ping;
 
 mod unknown;
+mod hset;
+pub use hset::HSet;
+
 pub use unknown::Unknown;
 
 use crate::{Connection, Db, Frame, Parse, ParseError, Shutdown};
@@ -30,6 +33,7 @@ pub enum Command {
     Unsubscribe(Unsubscribe),
     Ping(Ping),
     Unknown(Unknown),
+    HSet(HSet),
 }
 
 impl Command {
@@ -63,6 +67,7 @@ impl Command {
             "subscribe" => Command::Subscribe(Subscribe::parse_frames(&mut parse)?),
             "unsubscribe" => Command::Unsubscribe(Unsubscribe::parse_frames(&mut parse)?),
             "ping" => Command::Ping(Ping::parse_frames(&mut parse)?),
+            "hset" => Command::HSet(HSet::parse_frames(&mut parse)?),
             _ => {
                 // The command is not recognized and an Unknown command is
                 // returned.
@@ -98,7 +103,6 @@ impl Command {
         match self {
             Get(cmd) => cmd.apply(db, dst).await,
             Publish(cmd) => cmd.apply(db, dst).await,
-            //TODO:hset understand
             Set(cmd) => cmd.apply(db, dst).await,
             Subscribe(cmd) => cmd.apply(db, dst, shutdown).await,
             Ping(cmd) => cmd.apply(dst).await,
@@ -106,6 +110,7 @@ impl Command {
             // `Unsubscribe` cannot be applied. It may only be received from the
             // context of a `Subscribe` command.
             Unsubscribe(_) => Err("`Unsubscribe` is unsupported in this context".into()),
+            HSet(cmd) => cmd.apply(db, dst).await,
         }
     }
 
@@ -119,6 +124,7 @@ impl Command {
             Command::Unsubscribe(_) => "unsubscribe",
             Command::Ping(_) => "ping",
             Command::Unknown(cmd) => cmd.get_name(),
+            Command::HSet(_) => "hset",
         }
     }
 }

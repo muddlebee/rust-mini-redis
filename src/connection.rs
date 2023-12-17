@@ -165,6 +165,10 @@ impl Connection {
                 // Encode the length of the array.
                 self.write_decimal(val.len() as u64).await?;
 
+                //print val data
+                println!("val.len() = {}", val.len());
+                println!("val = {:?}", val);
+
                 // Iterate and encode each entry in the array.
                 for entry in &**val {
                     self.write_value(entry).await?;
@@ -202,7 +206,7 @@ impl Connection {
             }
             Frame::Bulk(val) => {
                 let len = val.len();
-
+                println!("val write_all = {:?}", val);
                 self.stream.write_u8(b'$').await?;
                 self.write_decimal(len as u64).await?;
                 self.stream.write_all(val).await?;
