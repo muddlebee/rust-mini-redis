@@ -400,6 +400,7 @@ impl Client {
         // Write the frame to the socket
         self.connection.write_frame(&frame).await.unwrap();
 
+        // Read the response from the server
         match self.read_response().await.unwrap() {
             Frame::Simple(response) if response == "OK" => {
                 println!("response {:?}",response);

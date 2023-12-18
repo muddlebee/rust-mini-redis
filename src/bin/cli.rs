@@ -115,8 +115,6 @@ async fn main() -> mini_redis::Result<()> {
     // Establish a connection
     let mut client = Client::connect(&addr).await?;
 
-    //TODO:hset add command
-
     // Process the requested command
     match cli.command {
         Command::Ping { msg } => {
