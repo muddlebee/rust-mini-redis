@@ -402,7 +402,7 @@ impl Client {
 
         match self.read_response().await.unwrap() {
             Frame::Simple(response) if response == "OK" => {
-                println!("response OK");
+                println!("response {:?}",response);
                 Ok(())
             },
             frame => Err(frame.to_error()),
