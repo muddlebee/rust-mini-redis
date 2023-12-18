@@ -104,6 +104,22 @@ async fn unsubscribes_from_channels() {
     assert_eq!(subscriber.get_subscribed().len(), 0);
 }
 
+/// test when hset command is sent to the server
+/// the server will store the key, field and value
+/// and return "OK" to the client
+#[tokio::test]
+async fn hset_command() {
+    let (addr, _) = start_server().await;
+
+    let mut client = Client::connect(addr).await.unwrap();
+    client
+        .hset(&"hello".to_string(), &"world".to_string(), "你好世界".into())
+
+
+ //   let value = client.hget("hello", "world").await.unwrap().unwrap();
+ //   assert_eq!("你好世界".as_bytes(), &value[..])
+}
+
 async fn start_server() -> (SocketAddr, JoinHandle<()>) {
     let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
     let addr = listener.local_addr().unwrap();

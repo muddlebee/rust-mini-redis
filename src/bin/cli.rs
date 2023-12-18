@@ -173,7 +173,7 @@ async fn main() -> mini_redis::Result<()> {
             }
         }
         Command::HSet { key, field, value } => {
-            let _ = client.hset(&key, &field, value);
+            client.hset(&key, &field, value).await?;
             println!("HSet OK");
         }
     }
