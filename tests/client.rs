@@ -120,6 +120,26 @@ async fn hset_command() {
     assert_eq!("你好世界".as_bytes(), &value[..])
 }
 
+/*/// test for hgetall command
+/// the server will return all the key-value pairs
+#[tokio::test]
+async fn hgetall_c() {
+    let (addr, _) = start_server().await;
+
+    let mut client = Client::connect(addr).await.unwrap();
+    client
+        .hset(&"hello".to_string(), &"world".to_string(), "你好世界".into()).await.unwrap();
+
+    //return all the key-value pairs
+    let value = client.hgetall(&"hello".to_string()).await.unwrap().unwrap();
+    println!("value {:?}", value);
+
+    //assert the key-value pairs
+    assert_eq!(value.get(&"world".to_string()).unwrap().as_ref(), "你好世界".as_bytes());
+
+
+}*/
+
 async fn start_server() -> (SocketAddr, JoinHandle<()>) {
     let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
     let addr = listener.local_addr().unwrap();

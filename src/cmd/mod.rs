@@ -18,9 +18,11 @@ mod hset;
 pub use hset::HSet;
 
 mod hget;
-
 pub use hget::HGet;
 
+mod hgetall;
+
+pub use hgetall::HGetAll;
 pub use unknown::Unknown;
 
 use crate::{Connection, Db, Frame, Parse, ParseError, Shutdown};
@@ -39,6 +41,7 @@ pub enum Command {
     Unknown(Unknown),
     HSet(HSet),
     HGet(HGet),
+    HGGetAll(HGetAll),
 }
 
 impl Command {
@@ -74,6 +77,7 @@ impl Command {
             "ping" => Command::Ping(Ping::parse_frames(&mut parse)?),
             "hset" => Command::HSet(HSet::parse_frames(&mut parse)?),
             "hget" => Command::HGet(HGet::parse_frames(&mut parse)?),
+            "hgetall" => Command::HGGetAll(HGetAll::parse_frames(&mut parse)?),
             _ => {
                 // The command is not recognized and an Unknown command is
                 // returned.
@@ -118,6 +122,7 @@ impl Command {
             Unsubscribe(_) => Err("`Unsubscribe` is unsupported in this context".into()),
             HSet(cmd) => cmd.apply(db, dst).await,
             HGet(cmd) => cmd.apply(db, dst).await,
+            HGGetAll(cmd) => cmd.apply(db, dst).await,
         }
     }
 
@@ -133,6 +138,7 @@ impl Command {
             Command::Unknown(cmd) => cmd.get_name(),
             Command::HSet(_) => "hset",
             Command::HGet(_) => "hget",
+            Command::HGGetAll(_) => "hgetall",
         }
     }
 }

@@ -2,7 +2,8 @@
 //!
 //! Provides an async connect and methods for issuing the supported commands.
 
-use crate::cmd::{Get, HGet, HSet, Ping, Publish, Set, Subscribe, Unsubscribe};
+use std::collections::HashMap;
+use crate::cmd::{Get, HGet, HGetAll, HSet, Ping, Publish, Set, Subscribe, Unsubscribe};
 use crate::{Connection, Frame};
 
 use async_stream::try_stream;
@@ -410,7 +411,7 @@ impl Client {
         }
     }
 
-    //hget
+    ///hget
     pub async fn hget(&mut self, p0: &String, p1: &String) -> crate::Result<Option<Bytes>> {
         let frame = HGet::new(p0.to_string(), p1.to_string()).into_frame();
 
@@ -430,6 +431,39 @@ impl Client {
         }
 
     }
+
+    ///hgetall
+    pub async fn hgetall(&mut self, p0: &String) -> crate::Result<Option<HashMap<String, Bytes>>> {
+        let frame = HGetAll::new(p0.to_string()).into_frame();
+
+        debug!(request = ?frame);
+
+        // Write the frame to the socket
+        self.connection.write_frame(&frame).await?;
+
+        // Read the response from the server
+        match self.read_response().await? {
+            Frame::Array(response) => {
+                println!("response {:?}", response);
+
+                let mut hash_map = HashMap::new();
+                let mut iter = response.into_iter();
+
+                // Since HGETALL returns pairs of frames, we iterate two at a time.
+                while let (Some(Frame::Bulk(key)), Some(Frame::Bulk(value))) = (iter.next(), iter.next()) {
+                    let key = String::from_utf8(key.to_vec()).map_err(|_| "Invalid UTF-8 sequence in key")?;
+                    hash_map.insert(key, value);
+                }
+
+                Ok(Some(hash_map))
+            },
+            Frame::Null => Ok(None),
+            frame => Err(frame.to_error()),
+        }
+    }
+
+
+
 }
 
 impl Subscriber {

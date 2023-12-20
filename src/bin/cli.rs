@@ -89,6 +89,14 @@ enum Command {
         /// Name of field to set
         field: String,
     },
+
+    ///HGETALL key
+    /// Returns all fields and values of the hash stored at key.
+    /// In the returned value, every field name is followed by its value, so the length of the reply is twice the size of the hash.
+    HGetAll {
+        /// Name of key to set
+        key: String,
+    },
 }
 
 /// Entry point for CLI tool.
@@ -182,6 +190,22 @@ async fn main() -> mini_redis::Result<()> {
                 }
             } else {
                 println!("(nil)");
+            }
+        }
+        Command::HGetAll { key } => {
+
+            // Assuming `result` is of type `Option<HashMap<String, Bytes>>`
+            if let Some(hash_map) = client.hgetall(&key).await? {
+                for (key, value) in hash_map {
+                    // Convert `Bytes` to a string slice for display or processing
+                    if let Ok(value_str) = str::from_utf8(&value) {
+                        println!("Key: {}, Value: {}", key, value_str);
+                    } else {
+                        println!("Key: {}, Value: [non-UTF8 data]", key);
+                    }
+                }
+            } else {
+                // Handle the case where the key does not exist or another error occurred
             }
         }
     }

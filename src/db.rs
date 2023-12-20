@@ -300,6 +300,12 @@ impl Db {
         let state = self.shared.state.lock().unwrap();
         state.hashes.get(key).and_then(|hash| hash.get(field)).cloned()
     }
+
+    /// hgetall implementation
+    pub fn hgetall(&self, key: &str) -> Option<HashMap<String, Bytes>> {
+        let state = self.shared.state.lock().unwrap();
+        state.hashes.get(key).cloned()
+    }
 }
 
 impl Shared {
