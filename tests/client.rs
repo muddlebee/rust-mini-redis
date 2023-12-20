@@ -113,11 +113,11 @@ async fn hset_command() {
 
     let mut client = Client::connect(addr).await.unwrap();
     client
-        .hset(&"hello".to_string(), &"world".to_string(), "你好世界".into())
+        .hset(&"hello".to_string(), &"world".to_string(), "你好世界".into()).await.unwrap();
 
-
- //   let value = client.hget("hello", "world").await.unwrap().unwrap();
- //   assert_eq!("你好世界".as_bytes(), &value[..])
+    let value = client.hget(&"hello".to_string(), &"world".to_string()).await.unwrap().unwrap();
+    println!("value {:?}", value);
+    assert_eq!("你好世界".as_bytes(), &value[..])
 }
 
 async fn start_server() -> (SocketAddr, JoinHandle<()>) {

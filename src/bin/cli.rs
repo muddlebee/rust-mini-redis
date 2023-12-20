@@ -79,17 +79,16 @@ enum Command {
         value: Bytes,
     },
 
+    /// HGET key field
+    /// Returns the value associated with field in the hash stored at key.
+    /// If the key or the field do not exist, nil is returned.
+    HGet {
+        /// Name of key to set
+        key: String,
 
-    // /// HGET key field
-    // /// Returns the value associated with field in the hash stored at key.
-    // /// If the key or the field do not exist, nil is returned.
-    // HGET {
-    //     /// Name of key to set
-    //     key: String,
-    //
-    //     /// Name of field to set
-    //     field: String,
-    // },
+        /// Name of field to set
+        field: String,
+    },
 }
 
 /// Entry point for CLI tool.
@@ -173,6 +172,17 @@ async fn main() -> mini_redis::Result<()> {
         Command::HSet { key, field, value } => {
             client.hset(&key, &field, value).await?;
             println!("HSet OK");
+        }
+        Command::HGet { key, field } => {
+            if let Some(value) = client.hget(&key, &field).await? {
+                if let Ok(string) = str::from_utf8(&value) {
+                    println!("\"{}\"", string);
+                } else {
+                    println!("{:?}", value);
+                }
+            } else {
+                println!("(nil)");
+            }
         }
     }
 

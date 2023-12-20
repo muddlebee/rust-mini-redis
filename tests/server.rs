@@ -397,6 +397,25 @@ async fn send_error_get_set_after_subscribe() {
     assert_eq!(b"-ERR unknown command \'get\'\r\n", &response);
 }
 
+// test hset command
+#[tokio::test]
+async fn hset_server() {
+    let addr = start_server().await;
+
+    let mut stream = TcpStream::connect(addr).await.unwrap();
+
+    // send HSET command
+    stream
+        .write_all(b"*4\r\n$4\r\nHSET\r\n$5\r\nhello\r\n$5\r\nfield\r\n$5\r\nworld\r\n")
+        .await
+        .unwrap();
+
+    let mut response = [0; 5];
+
+    stream.read_exact(&mut response).await.unwrap();
+    assert_eq!(b"+OK\r\n", &response);
+}
+
 async fn start_server() -> SocketAddr {
     let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
     let addr = listener.local_addr().unwrap();

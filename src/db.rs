@@ -293,6 +293,13 @@ impl Db {
         // This returns `None` if the field is new, otherwise returns the old value.
         hash.insert(field, value).is_none()
     }
+
+
+    /// hget implementation
+    pub(crate) fn hget(&self, key: &str, field: &str) -> Option<Bytes> {
+        let state = self.shared.state.lock().unwrap();
+        state.hashes.get(key).and_then(|hash| hash.get(field)).cloned()
+    }
 }
 
 impl Shared {
