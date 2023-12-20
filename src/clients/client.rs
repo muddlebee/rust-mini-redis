@@ -457,7 +457,9 @@ impl Client {
 
                 Ok(Some(hash_map))
             },
-            Frame::Null => Ok(None),
+            Frame::Null => {
+                Ok(None)
+            },
             frame => Err(frame.to_error()),
         }
     }

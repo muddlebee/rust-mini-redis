@@ -206,6 +206,7 @@ async fn main() -> mini_redis::Result<()> {
                 }
             } else {
                 // Handle the case where the key does not exist or another error occurred
+                return Err("key does not exist".into());
             }
         }
     }
