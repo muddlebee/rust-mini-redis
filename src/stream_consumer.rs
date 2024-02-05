@@ -46,7 +46,7 @@ impl Stream {
         }
     }
 
-    // Additional methods for managing the stream and its entries
+  /*   // Additional methods for managing the stream and its entries
     pub fn xadd(&mut self, entry_fields: HashMap<String, String>) -> crate::Result<()> {
         //TODO: implement this function
 
@@ -54,7 +54,7 @@ impl Stream {
 
         //  unimplemented!()
         return Ok(());
-    }
+    } */
 
     //xread with self
     pub fn xread(&mut self, id: &str) -> crate::Result<()> {
@@ -63,6 +63,16 @@ impl Stream {
 
     //xrange with self
     pub fn xrange(&mut self, start: &str, end: &str) -> crate::Result<()> {
+        return Ok(());
+    }
+
+    pub(crate) fn xadd(&self, key: String, entry: String, value: bytes::Bytes) -> crate::Result<()> {
+        
+        //TODO: implement this function
+        print!("XADD command called with key: {:?}, entry: {:?}, value: {:?}", key, entry, value);
+        
+        //add the entry to the stream from the function arguments and generate a unique id for the entry
+
         return Ok(());
     }
 

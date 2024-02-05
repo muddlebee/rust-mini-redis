@@ -6,7 +6,7 @@ use std::collections::{BTreeSet, HashMap};
 use std::sync::{Arc, Mutex};
 use tracing::debug;
 
-use crate::streams::Stream;
+use crate::stream_consumer::Stream;
 
 /// A wrapper around a `Db` instance. This exists to allow orderly cleanup
 /// of the `Db` by signalling the background purge task to shut down when
@@ -138,7 +138,9 @@ impl Db {
                 pub_sub: HashMap::new(),
                 expirations: BTreeSet::new(),
                 shutdown: false,
-                hashes: HashMap::new()
+                hashes: HashMap::new(),
+                // initialize stream with empty hashmap
+                streams: Stream::new(String::new()),
             }),
             background_task: Notify::new(),
         });
@@ -310,6 +312,12 @@ impl Db {
     pub fn hgetall(&self, key: &str) -> Option<HashMap<String, Bytes>> {
         let state = self.shared.state.lock().unwrap();
         state.hashes.get(key).cloned()
+    }
+
+    /// xadd implementation
+    pub fn xadd(&self, key: String, entry: String, value: Bytes) -> bool {
+        let mut state = self.shared.state.lock().unwrap();
+        state.streams.xadd(key, entry, value)
     }
     
 }

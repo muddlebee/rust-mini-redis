@@ -1,5 +1,4 @@
 mod get;
-mod stream;
 pub use get::Get;
 
 mod publish;
@@ -26,6 +25,8 @@ mod hgetall;
 pub use hgetall::HGetAll;
 pub use unknown::Unknown;
 
+mod stream_producer;
+pub use stream_producer::{XAdd, XRead, XRange};
 
 
 use crate::{Connection, Db, Frame, Parse, ParseError, Shutdown};
@@ -44,7 +45,7 @@ pub enum Command {
     Unknown(Unknown),
     HSet(HSet),
     HGet(HGet),
-    HGGetAll(HGetAll),
+    HGetAll(HGetAll),
 }
 
 impl Command {
@@ -80,7 +81,7 @@ impl Command {
             "ping" => Command::Ping(Ping::parse_frames(&mut parse)?),
             "hset" => Command::HSet(HSet::parse_frames(&mut parse)?),
             "hget" => Command::HGet(HGet::parse_frames(&mut parse)?),
-            "hgetall" => Command::HGGetAll(HGetAll::parse_frames(&mut parse)?),
+            "hgetall" => Command::HGetAll(HGetAll::parse_frames(&mut parse)?),
             _ => {
                 // The command is not recognized and an Unknown command is
                 // returned.
@@ -125,7 +126,7 @@ impl Command {
             Unsubscribe(_) => Err("`Unsubscribe` is unsupported in this context".into()),
             HSet(cmd) => cmd.apply(db, dst).await,
             HGet(cmd) => cmd.apply(db, dst).await,
-            HGGetAll(cmd) => cmd.apply(db, dst).await,
+            HGetAll(cmd) => cmd.apply(db, dst).await,
         }
     }
 
@@ -141,7 +142,7 @@ impl Command {
             Command::Unknown(cmd) => cmd.get_name(),
             Command::HSet(_) => "hset",
             Command::HGet(_) => "hget",
-            Command::HGGetAll(_) => "hgetall",
+            Command::HGetAll(_) => "hgetall",
         }
     }
 }

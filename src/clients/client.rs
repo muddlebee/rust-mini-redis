@@ -3,8 +3,8 @@
 //! Provides an async connect and methods for issuing the supported commands.
 
 use std::collections::HashMap;
-use crate::cmd::{Get, HGet, HGetAll, HSet, Ping, Publish, Set, Subscribe, Unsubscribe};
-use crate::{Connection, Frame};
+use crate::cmd::{Get, HGet, HGetAll, HSet, Ping, Publish, Set, Subscribe, Unsubscribe, XAdd, XRead, XRange};
+use crate::{frame, Connection, Frame};
 
 use async_stream::try_stream;
 use bytes::Bytes;
@@ -468,12 +468,18 @@ impl Client {
     /// xadd
     /// e.g. XADD mystream * sensor-id 1234 temperature 19.8
     pub async fn xadd(&mut self, p0: &String, p1: &String, p2: Bytes) -> crate::Result<()> {
-        unimplemented!()
+        let frame = XAdd::new(p0, p1, p2).into_frame();
+        debug!(request = ?frame);
 
-        //TODO: implement xadd
+        // Write the frame to the socket
+        self.connection.write_frame(&frame).await?;
 
+        // Read the response from the server
+        match self.read_response().await? {
+            Frame::Simple(response) if response == "OK" => Ok(()),
+            frame => Err(frame.to_error()),
+        }
     }
-
     /// xread
     /// e.g. XREAD COUNT 2 STREAMS mystream 0
     pub async fn xread(&mut self,p0: &String, p1: &String, p2: Bytes) -> crate::Result<()> {
