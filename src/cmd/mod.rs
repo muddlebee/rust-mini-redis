@@ -1,4 +1,5 @@
 mod get;
+mod stream;
 pub use get::Get;
 
 mod publish;
@@ -24,6 +25,8 @@ mod hgetall;
 
 pub use hgetall::HGetAll;
 pub use unknown::Unknown;
+
+
 
 use crate::{Connection, Db, Frame, Parse, ParseError, Shutdown};
 

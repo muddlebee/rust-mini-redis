@@ -6,6 +6,8 @@ use std::collections::{BTreeSet, HashMap};
 use std::sync::{Arc, Mutex};
 use tracing::debug;
 
+use crate::streams::Stream;
+
 /// A wrapper around a `Db` instance. This exists to allow orderly cleanup
 /// of the `Db` by signalling the background purge task to shut down when
 /// this struct is dropped.
@@ -89,6 +91,9 @@ struct State {
     /// value: hashmap
     hashes: HashMap<String, HashMap<String, Bytes>>,
 
+    /// Stream data 
+    streams: Stream
+
 }
 
 /// Entry in the key-value store
@@ -133,7 +138,7 @@ impl Db {
                 pub_sub: HashMap::new(),
                 expirations: BTreeSet::new(),
                 shutdown: false,
-                hashes: HashMap::new(),
+                hashes: HashMap::new()
             }),
             background_task: Notify::new(),
         });
@@ -306,6 +311,7 @@ impl Db {
         let state = self.shared.state.lock().unwrap();
         state.hashes.get(key).cloned()
     }
+    
 }
 
 impl Shared {

@@ -49,6 +49,8 @@ pub mod server;
 mod shutdown;
 use shutdown::Shutdown;
 
+mod streams;
+pub use streams::Stream;
 /// Default port that a redis server listens on.
 ///
 /// Used if no port is specified.

@@ -465,6 +465,29 @@ impl Client {
     }
 
 
+    /// xadd
+    /// e.g. XADD mystream * sensor-id 1234 temperature 19.8
+    pub async fn xadd(&mut self, p0: &String, p1: &String, p2: Bytes) -> crate::Result<()> {
+        unimplemented!()
+
+        //TODO: implement xadd
+
+    }
+
+    /// xread
+    /// e.g. XREAD COUNT 2 STREAMS mystream 0
+    pub async fn xread(&mut self,p0: &String, p1: &String, p2: Bytes) -> crate::Result<()> {
+        unimplemented!()
+
+    }
+
+    /// xrange
+    /// e.g. XRANGE mystream - +
+    pub async fn xrange(&mut self, p0: &String, p1: &String, p2: Bytes) -> crate::Result<()> {
+        unimplemented!()
+
+    }
+
 
 }
 

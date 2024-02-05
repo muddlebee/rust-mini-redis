@@ -97,6 +97,58 @@ enum Command {
         /// Name of key to set
         key: String,
     },
+
+    /// XADD stream entry [entry ...]
+    /// Appends the specified stream entry to the stream at the specified key. 
+    ///
+    /// Examples from https://redis.io/docs/data-types/streams/
+    /// 
+    /// > XADD race:france * rider Castilla speed 30.2 position 1 location_id 1
+    /// "1692632086370-0"
+    /// > XADD race:france * rider Norem speed 28.8 position 3 location_id 1
+    /// "1692632094485-0"
+    /// > XADD race:france * rider Prickett speed 29.7 position 2 location_id 1
+    /// "1692632102976-0"
+    ///
+    XAdd {
+        /// Name of stream to set
+        stream: String,
+
+        /// Name of entry to set
+        entry: String,
+
+        /// Value to set.
+        #[clap(value_parser = bytes_from_str)]
+        value: Bytes,
+    },
+
+    /// XREAD [COUNT count] [BLOCK milliseconds] STREAMS key [key ...] ID [ID ...]
+    /// Read data from one or multiple streams, only returning entries with an ID greater than the last received ID reported by the caller.
+    XRead {
+        /// Name of stream to set
+        stream: String,
+
+        /// Name of entry to set
+        entry: String,
+
+        /// Value to set.
+        #[clap(value_parser = bytes_from_str)]
+        value: Bytes,
+    },
+
+    /// XRANGE key start end [COUNT count]
+    /// Returns the stream entries matching a given range of IDs.
+    XRange {
+        /// Name of stream to set
+        stream: String,
+
+        /// Name of entry to set
+        entry: String,
+
+        /// Value to set.
+        #[clap(value_parser = bytes_from_str)]
+        value: Bytes,
+    },
 }
 
 /// Entry point for CLI tool.
@@ -193,7 +245,6 @@ async fn main() -> mini_redis::Result<()> {
             }
         }
         Command::HGetAll { key } => {
-
             // Assuming `result` is of type `Option<HashMap<String, Bytes>>`
             if let Some(hash_map) = client.hgetall(&key).await? {
                 for (key, value) in hash_map {
@@ -208,6 +259,31 @@ async fn main() -> mini_redis::Result<()> {
                 // Handle the case where the key does not exist or another error occurred
                 return Err("key does not exist".into());
             }
+        }
+
+        Command::XAdd {
+            stream,
+            entry,
+            value,
+        } => {
+            client.xadd(&stream, &entry, value).await?;
+            println!("XAdd OK");
+        }
+
+        Command::XRead {
+            stream,
+            entry,
+            value,
+        } => {
+            client.xread(&stream, &entry, value).await?;
+        }
+
+        Command::XRange {
+            stream,
+            entry,
+            value,
+        } => {
+            client.xrange(&stream, &entry, value).await?;
         }
     }
 
