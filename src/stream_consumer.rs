@@ -10,6 +10,7 @@ use std::collections::{HashMap, VecDeque};
 ///
 /// ```
 /// XADD race:france * rider Castilla speed 30.2 position 1 location_id 1
+/// XADD race:france * rider Roberto  speed 90.2 position 3 location_id 6
 /// ```
 /// # Example code
 ///
@@ -46,34 +47,29 @@ impl Stream {
         }
     }
 
-  /*   // Additional methods for managing the stream and its entries
-    pub fn xadd(&mut self, entry_fields: HashMap<String, String>) -> crate::Result<()> {
-        //TODO: implement this function
+    /// setter for the name and entries
+    pub fn set_name_and_entries(&mut self, name: String, entries: VecDeque<StreamEntry>) {
+        self.name = name;
+        self.entries = entries;
+    }
+    
+}
 
-        print!("XADD command called with entry fields: {:?}", entry_fields);
-
-        //  unimplemented!()
-        return Ok(());
-    } */
-
-    //xread with self
-    pub fn xread(&mut self, id: &str) -> crate::Result<()> {
-     return Ok(());
+impl StreamEntry {
+ 
+    //initialize with default values and generate a unique id
+    pub fn new() -> Self {
+        StreamEntry {
+            //generate a unique id
+            id: Uuid::new_v4().to_string(),
+            fields: HashMap::new(),
+        }
     }
 
-    //xrange with self
-    pub fn xrange(&mut self, start: &str, end: &str) -> crate::Result<()> {
-        return Ok(());
+    //setter for the fields
+    pub fn set_field(&mut self, field: &str, value: &str) {
+        self.fields.insert(field.to_string(), value.to_string());
     }
 
-    pub(crate) fn xadd(&self, key: String, entry: String, value: bytes::Bytes) -> crate::Result<()> {
-        
-        //TODO: implement this function
-        print!("XADD command called with key: {:?}, entry: {:?}, value: {:?}", key, entry, value);
-        
-        //add the entry to the stream from the function arguments and generate a unique id for the entry
-
-        return Ok(());
-    }
 
 }

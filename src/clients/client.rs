@@ -467,8 +467,8 @@ impl Client {
 
     /// xadd
     /// e.g. XADD mystream * sensor-id 1234 temperature 19.8
-    pub async fn xadd(&mut self, p0: &String, p1: &String, p2: Bytes) -> crate::Result<()> {
-        let frame = XAdd::new(p0, p1, p2).into_frame();
+    pub async fn xadd(&mut self, stream_name: &String, entries: Vec<String>) -> crate::Result<()> {
+        let frame = XAdd::new(stream_name, entries).into_frame();
         debug!(request = ?frame);
 
         // Write the frame to the socket
@@ -480,6 +480,8 @@ impl Client {
             frame => Err(frame.to_error()),
         }
     }
+
+    
     /// xread
     /// e.g. XREAD COUNT 2 STREAMS mystream 0
     pub async fn xread(&mut self,p0: &String, p1: &String, p2: Bytes) -> crate::Result<()> {

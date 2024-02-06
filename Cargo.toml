@@ -38,6 +38,14 @@ opentelemetry-aws = { version = "0.7.0", optional = true }
 # Allows you to send data to the OTel collector
 opentelemetry-otlp = { version = "0.12.0", optional = true }
 
+[dependencies.uuid]
+version = "1.7.0"
+features = [
+    "v4",                # Lets you generate random UUIDs
+    "fast-rng",          # Use a faster (but still sufficiently random) RNG
+    "macro-diagnostics", # Enable better diagnostics for compile-time UUIDs
+]
+
 [dev-dependencies]
 # Enable test-utilities in dev mode only. This is mostly for tests.
 tokio = { version = "1", features = ["test-util"] }

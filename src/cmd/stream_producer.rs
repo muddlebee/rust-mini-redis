@@ -9,14 +9,10 @@ use crate::Stream;
 /// Appends the specified stream entry to the stream at the specified key.
 #[derive(Debug)]
 pub struct XAdd {
-    /// Name of stream to set
-    stream: String,
-
-    /// Name of entry to set
-    entry: String,
-
-    /// Value to set.
-    value: Bytes,
+    /// Name of the stream to set
+    stream_name: String,
+    /// Entries as a vector of key-value pairs
+    entries: Vec<String>,
 }
 
 /// XREAD [COUNT count] [BLOCK milliseconds] STREAMS key [key ...] ID [ID ...]
@@ -49,35 +45,27 @@ pub struct XRange {
 
 impl XAdd {
     /// Create a new `XAdd` command which sets `key` to `value`.
-    pub fn new(stream: impl ToString, entry: impl ToString, value: Bytes) -> XAdd {
+    pub fn new(stream: impl ToString, entries: Vec<String>) -> XAdd {
         XAdd {
-            stream: stream.to_string(),
-            entry: entry.to_string(),
-            value,
+            stream_name: stream.to_string(),
+            entries,
         }
     }
 
     /// Get the stream
     pub fn stream(&self) -> &str {
-        &self.stream
+        &self.stream_name
     }
 
-    /// Get the entry
-    pub fn entry(&self) -> &str {
-        &self.entry
-    }
 
-    /// Get the value
-    pub fn value(&self) -> &Bytes {
-        &self.value
-    }
 
     pub(crate) fn into_frame(self) -> Frame {
         let mut frame = Frame::array();
         frame.push_bulk(Bytes::from("xadd".as_bytes()));
-        frame.push_bulk(Bytes::from(self.stream.into_bytes()));
-        frame.push_bulk(Bytes::from(self.entry.into_bytes()));
-        frame.push_bulk(self.value);
+        frame.push_bulk(Bytes::from(self.stream_name.into_bytes()));
+        for entry in self.entries {
+            frame.push_bulk(Bytes::from(entry.into_bytes()));
+        }
         frame
     }
 
@@ -87,10 +75,7 @@ impl XAdd {
     /// to execute a received command.
     #[instrument(skip(self, db, dst))]
     pub(crate) async fn apply(self, db: &Db, dst: &mut Connection) -> crate::Result<()> {
-        let mut stream = Stream::new("race:france".to_string());
-        //dummy hash map
-
-        stream.xadd(HashMap::new());
+        db.xadd(self.stream_name, self.entries);
         Ok(())
     }
 }
@@ -135,7 +120,7 @@ impl XRead {
     /// to execute a received command.
     #[instrument(skip(self, db, dst))]
     pub(crate) async fn apply(self, db: &Db, dst: &mut Connection) -> crate::Result<()> {
-        
+
         // Set the value in the shared database state.
 
         Ok(())

@@ -111,22 +111,17 @@ enum Command {
     /// "1692632102976-0"
     ///
     XAdd {
-        /// Name of stream to set
-        stream: String,
-
-        /// Name of entry to set
-        entry: String,
-
-        /// Value to set.
-        #[clap(value_parser = bytes_from_str)]
-        value: Bytes,
+        /// Name of the stream to set
+        stream_name: String,
+        /// Entries as a vector of key-value pairs
+        entries: Vec<String>,
     },
 
     /// XREAD [COUNT count] [BLOCK milliseconds] STREAMS key [key ...] ID [ID ...]
     /// Read data from one or multiple streams, only returning entries with an ID greater than the last received ID reported by the caller.
     XRead {
         /// Name of stream to set
-        stream: String,
+        stream_name: String,
 
         /// Name of entry to set
         entry: String,
@@ -140,7 +135,7 @@ enum Command {
     /// Returns the stream entries matching a given range of IDs.
     XRange {
         /// Name of stream to set
-        stream: String,
+        stream_name: String,
 
         /// Name of entry to set
         entry: String,
@@ -262,28 +257,26 @@ async fn main() -> mini_redis::Result<()> {
         }
 
         Command::XAdd {
-            stream,
-            entry,
-            value,
+            stream_name,
+            entries
         } => {
-            client.xadd(&stream, &entry, value).await?;
-            println!("XAdd OK");
+            client.xadd(&stream_name, entries).await?;
         }
 
         Command::XRead {
-            stream,
+            stream_name,
             entry,
             value,
         } => {
-            client.xread(&stream, &entry, value).await?;
+            client.xread(&stream_name, &entry, value).await?;
         }
 
         Command::XRange {
-            stream,
+            stream_name,
             entry,
             value,
         } => {
-            client.xrange(&stream, &entry, value).await?;
+            client.xrange(&stream_name, &entry, value).await?;
         }
     }
 
